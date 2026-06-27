@@ -6,7 +6,6 @@
 <title>P&L Calendar — BIG P</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  /* ── Reset & Base ── */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
@@ -39,7 +38,6 @@
     font-size: 13px;
   }
 
-  /* ── Layout ── */
   .wrap { max-width: 860px; margin: 0 auto; }
 
   h1 {
@@ -58,14 +56,14 @@
     flex-wrap: wrap;
   }
 
-  /* ── Accounts Panel ── */
+  /* Accounts */
   .accounts-panel {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     padding: 1rem;
     flex: 1;
-    min-width: 220px;
+    min-width: 240px;
   }
 
   .sec-label {
@@ -88,24 +86,24 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 8px;
+    padding: 7px 8px;
     background: var(--surface2);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
   }
 
-  .account-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
+  .account-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .account-info { flex: 1; min-width: 0; }
+  .account-name { font-size: 12px; color: #ccc; font-weight: 500; }
+  .account-meta { font-size: 10px; color: var(--dim); margin-top: 2px; }
 
-  .account-name { flex: 1; font-size: 12px; color: #ccc; font-weight: 500; }
-
+  .account-right { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
   .account-total { font-size: 12px; font-weight: 600; }
   .account-total.pos { color: var(--green); }
   .account-total.neg { color: var(--red); }
+  .account-ret { font-size: 10px; font-weight: 500; }
+  .account-ret.pos { color: var(--green-dim); }
+  .account-ret.neg { color: var(--red-dim); }
 
   .remove-btn {
     background: none;
@@ -120,20 +118,19 @@
   }
   .remove-btn:hover { color: var(--red); }
 
-  .add-account-row { display: flex; gap: 6px; }
+  .add-account-row { display: flex; gap: 6px; flex-wrap: wrap; }
 
   .add-account-row input {
     flex: 1;
+    min-width: 80px;
     font-size: 12px;
     padding: 6px 8px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--ghost);
     background: var(--surface2);
     color: var(--text);
-    min-width: 0;
     font-family: inherit;
   }
-
   .add-account-row input:focus { outline: none; border-color: var(--dim); }
 
   .btn-primary {
@@ -151,7 +148,7 @@
   }
   .btn-primary:hover { background: #e5e5e5; }
 
-  /* ── Stats Panel ── */
+  /* Stats */
   .stats-panel {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -179,7 +176,44 @@
   .stat-card-val.pos { color: var(--green); }
   .stat-card-val.neg { color: var(--red); }
 
-  /* ── Entry Panel ── */
+  /* Charts */
+  .charts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  @media (max-width: 600px) { .charts-row { grid-template-columns: 1fr; } }
+
+  .chart-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+  }
+
+  .chart-title {
+    font-size: 10px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+
+  .chart-canvas-wrap { position: relative; width: 100%; height: 160px; }
+  canvas { width: 100% !important; height: 100% !important; }
+
+  .chart-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 160px;
+    font-size: 11px;
+    color: var(--faint);
+  }
+
+  /* Entry panel */
   .entry-modal {
     background: var(--surface);
     border: 1px solid #242424;
@@ -208,12 +242,7 @@
   }
   .close-btn:hover { color: var(--white); }
 
-  .entries-list {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-bottom: 10px;
-  }
+  .entries-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
 
   .entry-row {
     display: flex;
@@ -230,6 +259,9 @@
   .entry-row-pnl { font-weight: 600; }
   .entry-row-pnl.pos { color: var(--green); }
   .entry-row-pnl.neg { color: var(--red); }
+  .entry-row-ret { font-size: 10px; color: var(--dim); }
+  .entry-row-ret.pos { color: var(--green-dim); }
+  .entry-row-ret.neg { color: var(--red-dim); }
 
   .entry-del {
     background: none;
@@ -243,13 +275,7 @@
   }
   .entry-del:hover { color: var(--red); }
 
-  .entry-form {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    align-items: flex-end;
-  }
-
+  .entry-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
   .entry-form-group { display: flex; flex-direction: column; gap: 4px; }
 
   .entry-form-group label {
@@ -272,7 +298,6 @@
 
   .entry-form-group input:focus,
   .entry-form-group select:focus { outline: none; border-color: var(--dim); }
-
   .entry-form-group select { min-width: 130px; }
 
   .save-btn {
@@ -289,7 +314,7 @@
   }
   .save-btn:hover { background: #e5e5e5; }
 
-  /* ── Calendar ── */
+  /* Calendar */
   .cal-section {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -298,15 +323,8 @@
     margin-bottom: 1rem;
   }
 
-  .cal-nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 14px;
-  }
-
+  .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
   .cal-nav span { font-size: 14px; font-weight: 500; color: var(--white); }
-
   .cal-nav button {
     background: none;
     border: 1px solid var(--ghost);
@@ -319,13 +337,7 @@
   }
   .cal-nav button:hover { border-color: #444; color: var(--white); }
 
-  .cal-days-header {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 3px;
-    margin-bottom: 3px;
-  }
-
+  .cal-days-header { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; margin-bottom: 3px; }
   .cal-day-name {
     text-align: center;
     font-size: 9px;
@@ -335,11 +347,7 @@
     padding: 4px 0;
   }
 
-  .cal-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 3px;
-  }
+  .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; }
 
   .cal-cell {
     background: var(--surface2);
@@ -350,111 +358,42 @@
     cursor: default;
     transition: border-color 0.15s;
   }
-
-  .cal-cell.today      { border-color: #2a2a2a; }
-  .cal-cell.has-data   { cursor: pointer; }
+  .cal-cell.today    { border-color: #2a2a2a; }
+  .cal-cell.has-data { cursor: pointer; }
   .cal-cell.has-data:hover { border-color: #2e2e2e; }
-  .cal-cell.selected   { border-color: #3a3a3a; }
+  .cal-cell.selected { border-color: #3a3a3a; }
   .cal-cell.other-month .cal-cell-num { color: #1e1e1e; }
 
   .cal-cell-num { font-size: 10px; color: var(--faint); font-weight: 500; margin-bottom: 5px; }
   .cal-cell.today .cal-cell-num { color: var(--muted); }
 
-  .cal-total { font-size: 12px; font-weight: 600; line-height: 1.3; margin-bottom: 4px; }
+  .cal-total { font-size: 12px; font-weight: 600; line-height: 1.3; margin-bottom: 2px; }
   .cal-total.pos { color: var(--green); }
   .cal-total.neg { color: var(--red); }
 
-  .cal-breakdown { display: flex; flex-direction: column; gap: 2px; }
+  .cal-ret { font-size: 9px; margin-bottom: 4px; }
+  .cal-ret.pos { color: var(--green-dim); }
+  .cal-ret.neg { color: var(--red-dim); }
 
+  .cal-breakdown { display: flex; flex-direction: column; gap: 2px; }
   .cal-acc-line { display: flex; align-items: center; gap: 4px; font-size: 10px; color: #555; }
   .cal-acc-dot  { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
   .cal-acc-val  { font-weight: 500; }
   .cal-acc-val.pos { color: var(--green-dim); }
   .cal-acc-val.neg { color: var(--red-dim); }
 
-  /* ── Legend ── */
-  .legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 12px;
-    font-size: 11px;
-    color: var(--faint);
-  }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; font-size: 11px; color: var(--faint); }
+  .legend span { display: flex; align-items: center; gap: 5px; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 
-  .legend span {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-
-  .legend-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    display: inline-block;
-  }
-
-  /* ── Watermark ── */
   .watermark {
-    position: fixed;
-    bottom: 16px;
-    right: 20px;
-    font-size: 10px;
-    color: #1e1e1e;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    pointer-events: none;
-    user-select: none;
+    position: fixed; bottom: 16px; right: 20px;
+    font-size: 10px; color: #1e1e1e;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    pointer-events: none; user-select: none;
   }
 
-  /* ── Charts ── */
-  .charts-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  @media (max-width: 600px) {
-    .charts-row { grid-template-columns: 1fr; }
-  }
-
-  .chart-panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 1.25rem;
-  }
-
-  .chart-title {
-    font-size: 10px;
-    color: var(--dim);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    font-weight: 600;
-    margin-bottom: 14px;
-  }
-
-  .chart-canvas-wrap {
-    position: relative;
-    width: 100%;
-    height: 160px;
-  }
-
-  canvas { width: 100% !important; height: 100% !important; }
-
-  .chart-empty {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 160px;
-    font-size: 11px;
-    color: var(--faint);
-  }
-
-  /* ── Helpers ── */
-  .empty-msg { font-size: 12px; color: var(--faint); padding: 4px 0; }
+  .empty-msg  { font-size: 12px; color: var(--faint); padding: 4px 0; }
   .all-logged { font-size: 11px; color: var(--dim); margin-top: 4px; }
 </style>
 </head>
@@ -467,21 +406,16 @@
       <div class="sec-label">Accounts</div>
       <div class="account-list" id="account-list"></div>
       <div class="add-account-row">
-        <input
-          type="text"
-          id="new-acc-name"
-          placeholder="Account name"
-          maxlength="24"
-          onkeydown="if(event.key==='Enter') addAccount()"
-        >
+        <input type="text" id="new-acc-name" placeholder="Account name" maxlength="24"
+          onkeydown="if(event.key==='Enter') document.getElementById('new-acc-size').focus()">
+        <input type="number" id="new-acc-size" placeholder="Size ($)" min="0" style="width:90px"
+          onkeydown="if(event.key==='Enter') addAccount()">
         <button class="btn-primary" onclick="addAccount()">+ Add</button>
       </div>
     </div>
-
     <div class="stats-panel" id="stats-panel"></div>
   </div>
 
-  <!-- Charts -->
   <div class="charts-row">
     <div class="chart-panel">
       <div class="chart-title">Cumulative P&L</div>
@@ -520,177 +454,153 @@
 <div class="watermark">made &amp; designed by BIG P</div>
 
 <script>
-  // ── Constants ──
-  const STORAGE_KEY = 'bigp_pnl_cal';
-  const COLORS = ['#a78bfa','#60a5fa','#4ade80','#f97316','#f472b6','#facc15','#38bdf8','#c084fc'];
-  const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const STORAGE_KEY  = 'bigp_pnl_cal';
+  const COLORS       = ['#a78bfa','#60a5fa','#4ade80','#f97316','#f472b6','#facc15','#38bdf8','#c084fc'];
+  const MONTH_NAMES  = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const DAY_NAMES    = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
-  // ── State ──
   let data = { accounts: [], entries: [] };
-  let calYear = new Date().getFullYear();
-  let calMonth = new Date().getMonth();
+  let calYear      = new Date().getFullYear();
+  let calMonth     = new Date().getMonth();
   let selectedDate = null;
 
-  // Load from localStorage
-  try {
-    data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"accounts":[],"entries":[]}');
-  } catch (e) {}
+  try { data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"accounts":[],"entries":[]}'); } catch(e) {}
+  // migrate old accounts that have no size field
+  data.accounts.forEach(a => { if (a.size === undefined) a.size = 0; });
 
-  // ── Persistence ──
-  function save() {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
-  }
+  function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {} }
+  function getColor(i) { return COLORS[i % COLORS.length]; }
 
-  // ── Helpers ──
-  function getColor(idx) {
-    return COLORS[idx % COLORS.length];
-  }
-
-  function fmt(val, decimals = 2) {
-    return (val >= 0 ? '+' : '') + '$' + val.toFixed(decimals);
+  function fmt(val, dec = 2) { return (val >= 0 ? '+' : '') + '$' + val.toFixed(dec); }
+  function fmtSize(val) { return '$' + Number(val).toLocaleString(); }
+  function fmtRet(pnl, size) {
+    if (!size) return '';
+    const pct = (pnl / size) * 100;
+    return (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
   }
 
   function getAccountPnl(accId) {
-    return data.entries
-      .filter(e => e.accountId === accId)
-      .reduce((sum, e) => sum + e.pnl, 0);
+    return data.entries.filter(e => e.accountId === accId).reduce((s,e) => s + e.pnl, 0);
   }
 
   function getDayTotal(dateStr) {
-    return data.entries
-      .filter(e => e.date === dateStr)
-      .reduce((sum, e) => sum + e.pnl, 0);
+    return data.entries.filter(e => e.date === dateStr).reduce((s,e) => s + e.pnl, 0);
   }
 
-  // ── Account Actions ──
+  // Total capital across all accounts that have a size set
+  function totalCapital() {
+    return data.accounts.reduce((s,a) => s + (a.size || 0), 0);
+  }
+
+  // ── Account actions ──
   function addAccount() {
-    const input = document.getElementById('new-acc-name');
-    const name = input.value.trim();
+    const nameEl = document.getElementById('new-acc-name');
+    const sizeEl = document.getElementById('new-acc-size');
+    const name   = nameEl.value.trim();
+    const size   = parseFloat(sizeEl.value) || 0;
     if (!name) return;
-    const duplicate = data.accounts.some(a => a.name.toLowerCase() === name.toLowerCase());
-    if (duplicate) { input.value = ''; return; }
-    data.accounts.push({ id: Date.now(), name });
-    input.value = '';
-    save();
-    render();
+    if (data.accounts.some(a => a.name.toLowerCase() === name.toLowerCase())) { nameEl.value = ''; sizeEl.value = ''; return; }
+    data.accounts.push({ id: Date.now(), name, size });
+    nameEl.value = ''; sizeEl.value = '';
+    save(); render();
   }
 
   function removeAccount(id) {
     data.accounts = data.accounts.filter(a => a.id !== id);
     data.entries  = data.entries.filter(e => e.accountId !== id);
-    save();
-    render();
+    save(); render();
   }
 
-  // ── Entry Actions ──
+  function updateSize(id, val) {
+    const acc = data.accounts.find(a => a.id === id);
+    if (acc) { acc.size = parseFloat(val) || 0; save(); render(); }
+  }
+
+  // ── Entry actions ──
   function addEntry() {
     const dateVal = document.getElementById('entry-date').value;
     const accId   = parseInt(document.getElementById('entry-acc').value);
     const pnl     = parseFloat(document.getElementById('entry-pnl').value);
     if (!dateVal || !accId || isNaN(pnl)) return;
-
     const existing = data.entries.find(e => e.date === dateVal && e.accountId === accId);
-    if (existing) {
-      existing.pnl = pnl;
-    } else {
-      data.entries.push({ id: Date.now(), date: dateVal, accountId: accId, pnl });
-    }
-    save();
-    render();
+    if (existing) { existing.pnl = pnl; } else { data.entries.push({ id: Date.now(), date: dateVal, accountId: accId, pnl }); }
+    save(); render();
   }
 
   function removeEntry(id) {
     data.entries = data.entries.filter(e => e.id !== id);
-    save();
-    render();
+    save(); render();
   }
 
-  // ── Calendar Navigation ──
   function changeMonth(dir) {
     calMonth += dir;
     if (calMonth > 11) { calMonth = 0; calYear++; }
     if (calMonth < 0)  { calMonth = 11; calYear--; }
-    renderCalendar();
+    renderCalendar(); renderBarChart();
   }
 
   function openDay(dateStr) {
     selectedDate = dateStr;
     render();
-    setTimeout(() => {
-      document.getElementById('entry-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 50);
+    setTimeout(() => document.getElementById('entry-panel')?.scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
   }
 
-  function closeEntry() {
-    selectedDate = null;
-    render();
-  }
+  function closeEntry() { selectedDate = null; render(); }
 
   // ── Renderers ──
   function renderAccounts() {
     const el = document.getElementById('account-list');
-
-    if (!data.accounts.length) {
-      el.innerHTML = '<div class="empty-msg">No accounts yet</div>';
-      return;
-    }
-
-    el.innerHTML = data.accounts.map((account, i) => {
-      const total = getAccountPnl(account.id);
-      const cls   = total >= 0 ? 'pos' : 'neg';
-      return `
-        <div class="account-item">
-          <div class="account-dot" style="background:${getColor(i)}"></div>
-          <div class="account-name">${account.name}</div>
-          <div class="account-total ${cls}">${fmt(total)}</div>
-          <button class="remove-btn" onclick="removeAccount(${account.id})">✕</button>
-        </div>`;
+    if (!data.accounts.length) { el.innerHTML = '<div class="empty-msg">No accounts yet</div>'; return; }
+    el.innerHTML = data.accounts.map((a, i) => {
+      const pnl = getAccountPnl(a.id);
+      const cls = pnl >= 0 ? 'pos' : 'neg';
+      const ret = a.size ? `<span class="account-ret ${cls}">${fmtRet(pnl, a.size)}</span>` : '';
+      const sizeTxt = a.size ? fmtSize(a.size) : '—';
+      return `<div class="account-item">
+        <div class="account-dot" style="background:${getColor(i)}"></div>
+        <div class="account-info">
+          <div class="account-name">${a.name}</div>
+          <div class="account-meta">
+            Size: <input type="number" value="${a.size || ''}" placeholder="Set size"
+              style="background:none;border:none;border-bottom:1px solid #2a2a2a;color:var(--dim);font-size:10px;width:70px;padding:1px 2px;font-family:inherit"
+              onchange="updateSize(${a.id}, this.value)" onclick="event.stopPropagation()">
+          </div>
+        </div>
+        <div class="account-right">
+          <div class="account-total ${cls}">${fmt(pnl)}</div>
+          ${ret}
+        </div>
+        <button class="remove-btn" onclick="removeAccount(${a.id})">✕</button>
+      </div>`;
     }).join('');
   }
 
   function renderStats() {
-    const totalPnl  = data.entries.reduce((s, e) => s + e.pnl, 0);
+    const totalPnl  = data.entries.reduce((s,e) => s + e.pnl, 0);
     const allDays   = [...new Set(data.entries.map(e => e.date))];
     const dayTotals = allDays.map(d => getDayTotal(d));
     const profDays  = dayTotals.filter(v => v > 0).length;
     const lossDays  = dayTotals.filter(v => v < 0).length;
     const winRate   = allDays.length > 0 ? Math.round(profDays / allDays.length * 100) : 0;
-    const cls       = totalPnl >= 0 ? 'pos' : 'neg';
+    const capital   = totalCapital();
+    const overallRet = capital ? fmtRet(totalPnl, capital) : '—';
+    const cls = totalPnl >= 0 ? 'pos' : 'neg';
 
     document.getElementById('stats-panel').innerHTML = `
-      <div class="stat-card">
-        <div class="stat-card-label">Total P&L</div>
-        <div class="stat-card-val ${cls}">${fmt(totalPnl)}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card-label">Profit days</div>
-        <div class="stat-card-val pos">${profDays}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card-label">Loss days</div>
-        <div class="stat-card-val neg">${lossDays}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card-label">Win rate</div>
-        <div class="stat-card-val">${winRate}%</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card-label">Accounts</div>
-        <div class="stat-card-val">${data.accounts.length}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card-label">Days tracked</div>
-        <div class="stat-card-val">${allDays.length}</div>
-      </div>`;
+      <div class="stat-card"><div class="stat-card-label">Total P&L</div><div class="stat-card-val ${cls}">${fmt(totalPnl)}</div></div>
+      <div class="stat-card"><div class="stat-card-label">Overall Return</div><div class="stat-card-val ${cls}">${overallRet}</div></div>
+      <div class="stat-card"><div class="stat-card-label">Win rate</div><div class="stat-card-val">${winRate}%</div></div>
+      <div class="stat-card"><div class="stat-card-label">Profit days</div><div class="stat-card-val pos">${profDays}</div></div>
+      <div class="stat-card"><div class="stat-card-label">Loss days</div><div class="stat-card-val neg">${lossDays}</div></div>
+      <div class="stat-card"><div class="stat-card-label">Days tracked</div><div class="stat-card-val">${allDays.length}</div></div>`;
   }
 
   function renderEntryPanel() {
     const el = document.getElementById('entry-panel');
     if (!selectedDate || !data.accounts.length) { el.innerHTML = ''; return; }
 
-    const dayEntries       = data.entries.filter(e => e.date === selectedDate);
-    const loggedIds        = new Set(dayEntries.map(e => e.accountId));
+    const dayEntries        = data.entries.filter(e => e.date === selectedDate);
+    const loggedIds         = new Set(dayEntries.map(e => e.accountId));
     const availableAccounts = data.accounts.filter(a => !loggedIds.has(a.id));
 
     const entriesHtml = dayEntries.length
@@ -698,13 +608,14 @@
           const acc = data.accounts.find(a => a.id === e.accountId);
           const idx = data.accounts.indexOf(acc);
           const cls = e.pnl >= 0 ? 'pos' : 'neg';
-          return `
-            <div class="entry-row">
-              <div class="entry-row-dot" style="background:${getColor(idx)}"></div>
-              <div class="entry-row-acc">${acc ? acc.name : 'Unknown'}</div>
-              <div class="entry-row-pnl ${cls}">${fmt(e.pnl)}</div>
-              <button class="entry-del" onclick="removeEntry(${e.id})">✕</button>
-            </div>`;
+          const ret = acc && acc.size ? `<span class="entry-row-ret ${cls}">${fmtRet(e.pnl, acc.size)}</span>` : '';
+          return `<div class="entry-row">
+            <div class="entry-row-dot" style="background:${getColor(idx)}"></div>
+            <div class="entry-row-acc">${acc ? acc.name : 'Unknown'}</div>
+            ${ret}
+            <div class="entry-row-pnl ${cls}">${fmt(e.pnl)}</div>
+            <button class="entry-del" onclick="removeEntry(${e.id})">✕</button>
+          </div>`;
         }).join('')}</div>`
       : '';
 
@@ -713,7 +624,7 @@
           <div class="entry-form-group">
             <label>Account</label>
             <select id="entry-acc">
-              ${availableAccounts.map(a => `<option value="${a.id}">${a.name}</option>`).join('')}
+              ${availableAccounts.map(a => `<option value="${a.id}">${a.name}${a.size ? ' (' + fmtSize(a.size) + ')' : ''}</option>`).join('')}
             </select>
           </div>
           <div class="entry-form-group">
@@ -725,82 +636,64 @@
         </div>`
       : '<div class="all-logged">All accounts logged for this day</div>';
 
-    el.innerHTML = `
-      <div class="entry-modal">
-        <div class="entry-modal-header">
-          <div class="entry-modal-title">${selectedDate}</div>
-          <button class="close-btn" onclick="closeEntry()">✕</button>
-        </div>
-        ${entriesHtml}
-        ${addFormHtml}
-      </div>`;
+    el.innerHTML = `<div class="entry-modal">
+      <div class="entry-modal-header">
+        <div class="entry-modal-title">${selectedDate}</div>
+        <button class="close-btn" onclick="closeEntry()">✕</button>
+      </div>
+      ${entriesHtml}
+      ${addFormHtml}
+    </div>`;
   }
 
   function renderCalendar() {
     document.getElementById('month-label').textContent = `${MONTH_NAMES[calMonth]} ${calYear}`;
-    document.getElementById('cal-days-header').innerHTML =
-      DAY_NAMES.map(d => `<div class="cal-day-name">${d}</div>`).join('');
+    document.getElementById('cal-days-header').innerHTML = DAY_NAMES.map(d => `<div class="cal-day-name">${d}</div>`).join('');
 
-    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
     const firstDay    = new Date(calYear, calMonth, 1).getDay();
     const prevDays    = new Date(calYear, calMonth, 0).getDate();
     const today       = new Date().toISOString().split('T')[0];
+    const capital     = totalCapital();
 
-    // Group entries by date
     const byDate = {};
-    data.entries.forEach(e => {
-      if (!byDate[e.date]) byDate[e.date] = [];
-      byDate[e.date].push(e);
-    });
+    data.entries.forEach(e => { if (!byDate[e.date]) byDate[e.date]=[]; byDate[e.date].push(e); });
 
     let cells = '';
 
-    // Trailing days from previous month
     for (let i = 0; i < firstDay; i++) {
-      const day = prevDays - firstDay + i + 1;
-      cells += `<div class="cal-cell other-month"><div class="cal-cell-num">${day}</div></div>`;
+      cells += `<div class="cal-cell other-month"><div class="cal-cell-num">${prevDays-firstDay+i+1}</div></div>`;
     }
 
-    // Current month days
     for (let d = 1; d <= daysInMonth; d++) {
-      const ds      = `${calYear}-${String(calMonth + 1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const ds      = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       const entries = byDate[ds] || [];
-      const total   = entries.reduce((s, e) => s + e.pnl, 0);
+      const total   = entries.reduce((s,e) => s+e.pnl, 0);
       const isToday = ds === today;
       const isSel   = ds === selectedDate;
 
-      const classes = [
-        'cal-cell',
-        isToday           ? 'today'    : '',
-        entries.length    ? 'has-data' : '',
-        isSel             ? 'selected' : '',
-      ].filter(Boolean).join(' ');
+      const classes = ['cal-cell', isToday?'today':'', entries.length?'has-data':'', isSel?'selected':''].filter(Boolean).join(' ');
 
       let inner = `<div class="cal-cell-num">${d}</div>`;
-
       if (entries.length) {
-        const pc = total > 0 ? 'pos' : total < 0 ? 'neg' : '';
-        inner += `<div class="cal-total ${pc}">${fmt(total, 0)}</div>`;
-        inner += `<div class="cal-breakdown">
-          ${entries.slice(0, 3).map(e => {
-            const acc = data.accounts.find(a => a.id === e.accountId);
-            const idx = data.accounts.indexOf(acc);
-            const vpc = e.pnl >= 0 ? 'pos' : 'neg';
-            return `<div class="cal-acc-line">
-              <span class="cal-acc-dot" style="background:${getColor(idx)}"></span>
-              <span class="cal-acc-val ${vpc}">${fmt(e.pnl, 0)}</span>
-            </div>`;
-          }).join('')}
-          ${entries.length > 3 ? `<div style="font-size:9px;color:#333">+${entries.length - 3} more</div>` : ''}
-        </div>`;
+        const pc  = total > 0 ? 'pos' : total < 0 ? 'neg' : '';
+        const ret = capital ? `<div class="cal-ret ${pc}">${fmtRet(total, capital)}</div>` : '';
+        inner += `<div class="cal-total ${pc}">${fmt(total,0)}</div>${ret}`;
+        inner += `<div class="cal-breakdown">${entries.slice(0,3).map(e => {
+          const acc = data.accounts.find(a => a.id === e.accountId);
+          const idx = data.accounts.indexOf(acc);
+          const vpc = e.pnl >= 0 ? 'pos' : 'neg';
+          return `<div class="cal-acc-line">
+            <span class="cal-acc-dot" style="background:${getColor(idx)}"></span>
+            <span class="cal-acc-val ${vpc}">${fmt(e.pnl,0)}</span>
+          </div>`;
+        }).join('')}${entries.length>3?`<div style="font-size:9px;color:#333">+${entries.length-3} more</div>`:''}</div>`;
       }
-
       cells += `<div class="${classes}" onclick="openDay('${ds}')">${inner}</div>`;
     }
 
-    // Leading days from next month
-    const remaining = (7 - (firstDay + daysInMonth) % 7) % 7;
-    for (let i = 1; i <= remaining; i++) {
+    const remaining = (7-(firstDay+daysInMonth)%7)%7;
+    for (let i=1; i<=remaining; i++) {
       cells += `<div class="cal-cell other-month"><div class="cal-cell-num">${i}</div></div>`;
     }
 
@@ -811,69 +704,38 @@
   let cumulativeChart = null;
   let barChart = null;
 
-  function renderCharts() {
-    renderCumulativeChart();
-    renderBarChart();
-  }
+  function renderCharts() { renderCumulativeChart(); renderBarChart(); }
 
   function renderCumulativeChart() {
-    const canvas  = document.getElementById('cumulative-chart');
-    const empty   = document.getElementById('cumulative-empty');
-
-    // Build sorted daily totals across all time
+    const canvas = document.getElementById('cumulative-chart');
+    const empty  = document.getElementById('cumulative-empty');
     const dateMap = {};
-    data.entries.forEach(e => {
-      dateMap[e.date] = (dateMap[e.date] || 0) + e.pnl;
-    });
+    data.entries.forEach(e => { dateMap[e.date] = (dateMap[e.date]||0) + e.pnl; });
     const sorted = Object.keys(dateMap).sort();
-
     if (!sorted.length) {
-      canvas.style.display = 'none';
-      empty.style.display  = 'flex';
-      if (cumulativeChart) { cumulativeChart.destroy(); cumulativeChart = null; }
-      return;
+      canvas.style.display='none'; empty.style.display='flex';
+      if (cumulativeChart) { cumulativeChart.destroy(); cumulativeChart=null; } return;
     }
-
-    canvas.style.display = 'block';
-    empty.style.display  = 'none';
-
-    let running = 0;
-    const labels = sorted.map(d => d.slice(5)); // MM-DD
+    canvas.style.display='block'; empty.style.display='none';
+    let running=0;
+    const labels = sorted.map(d => d.slice(5));
     const values = sorted.map(d => { running += dateMap[d]; return parseFloat(running.toFixed(2)); });
-    const lastVal = values[values.length - 1];
+    const lastVal = values[values.length-1];
     const lineColor = lastVal >= 0 ? '#4ade80' : '#f87171';
-
     if (cumulativeChart) cumulativeChart.destroy();
-
-    const ctx = canvas.getContext('2d');
-    const grad = ctx.createLinearGradient(0, 0, 0, 160);
-    grad.addColorStop(0, lastVal >= 0 ? 'rgba(74,222,128,0.18)' : 'rgba(248,113,113,0.18)');
+    const ctx  = canvas.getContext('2d');
+    const grad = ctx.createLinearGradient(0,0,0,160);
+    grad.addColorStop(0, lastVal>=0 ? 'rgba(74,222,128,0.18)' : 'rgba(248,113,113,0.18)');
     grad.addColorStop(1, 'rgba(0,0,0,0)');
-
     cumulativeChart = new Chart(ctx, {
       type: 'line',
-      data: {
-        labels,
-        datasets: [{
-          data: values,
-          borderColor: lineColor,
-          borderWidth: 2,
-          backgroundColor: grad,
-          pointRadius: values.length > 20 ? 0 : 3,
-          pointBackgroundColor: lineColor,
-          tension: 0.3,
-          fill: true,
-        }]
-      },
+      data: { labels, datasets: [{ data:values, borderColor:lineColor, borderWidth:2, backgroundColor:grad, pointRadius:values.length>20?0:3, pointBackgroundColor:lineColor, tension:0.3, fill:true }] },
       options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: {
-          callbacks: { label: ctx => (ctx.parsed.y >= 0 ? '+' : '') + '$' + ctx.parsed.y.toFixed(2) }
-        }},
+        responsive:true, maintainAspectRatio:false,
+        plugins: { legend:{display:false}, tooltip:{ callbacks:{ label: c=>(c.parsed.y>=0?'+':'')+'$'+c.parsed.y.toFixed(2) } } },
         scales: {
-          x: { ticks: { color: '#444', font: { size: 9 }, maxTicksLimit: 6 }, grid: { color: '#161616' } },
-          y: { ticks: { color: '#444', font: { size: 9 }, callback: v => '$' + v }, grid: { color: '#161616' } }
+          x: { ticks:{color:'#444',font:{size:9},maxTicksLimit:6}, grid:{color:'#161616'} },
+          y: { ticks:{color:'#444',font:{size:9},callback:v=>'$'+v}, grid:{color:'#161616'} }
         }
       }
     });
@@ -882,59 +744,35 @@
   function renderBarChart() {
     const canvas = document.getElementById('bar-chart');
     const empty  = document.getElementById('bar-empty');
-    document.getElementById('bar-month-label').textContent = MONTH_NAMES[calMonth] + ' ' + calYear;
-
-    const prefix = `${calYear}-${String(calMonth + 1).padStart(2,'0')}`;
-    const monthEntries = data.entries.filter(e => e.date.startsWith(prefix));
-
+    document.getElementById('bar-month-label').textContent = MONTH_NAMES[calMonth]+' '+calYear;
+    const prefix = `${calYear}-${String(calMonth+1).padStart(2,'0')}`;
     const dateMap = {};
-    monthEntries.forEach(e => { dateMap[e.date] = (dateMap[e.date] || 0) + e.pnl; });
+    data.entries.filter(e => e.date.startsWith(prefix)).forEach(e => { dateMap[e.date]=(dateMap[e.date]||0)+e.pnl; });
     const sorted = Object.keys(dateMap).sort();
-
     if (!sorted.length) {
-      canvas.style.display = 'none';
-      empty.style.display  = 'flex';
-      if (barChart) { barChart.destroy(); barChart = null; }
-      return;
+      canvas.style.display='none'; empty.style.display='flex';
+      if (barChart) { barChart.destroy(); barChart=null; } return;
     }
-
-    canvas.style.display = 'block';
-    empty.style.display  = 'none';
-
-    const labels = sorted.map(d => parseInt(d.split('-')[2]));
-    const values = sorted.map(d => parseFloat(dateMap[d].toFixed(2)));
-    const colors = values.map(v => v >= 0 ? 'rgba(74,222,128,0.7)' : 'rgba(248,113,113,0.7)');
-    const borders = values.map(v => v >= 0 ? '#4ade80' : '#f87171');
-
+    canvas.style.display='block'; empty.style.display='none';
+    const labels  = sorted.map(d => parseInt(d.split('-')[2]));
+    const values  = sorted.map(d => parseFloat(dateMap[d].toFixed(2)));
+    const colors  = values.map(v => v>=0 ? 'rgba(74,222,128,0.7)' : 'rgba(248,113,113,0.7)');
+    const borders = values.map(v => v>=0 ? '#4ade80' : '#f87171');
     if (barChart) barChart.destroy();
-
     barChart = new Chart(document.getElementById('bar-chart').getContext('2d'), {
       type: 'bar',
-      data: {
-        labels,
-        datasets: [{
-          data: values,
-          backgroundColor: colors,
-          borderColor: borders,
-          borderWidth: 1,
-          borderRadius: 3,
-        }]
-      },
+      data: { labels, datasets: [{ data:values, backgroundColor:colors, borderColor:borders, borderWidth:1, borderRadius:3 }] },
       options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: {
-          callbacks: { label: ctx => (ctx.parsed.y >= 0 ? '+' : '') + '$' + ctx.parsed.y.toFixed(2) }
-        }},
+        responsive:true, maintainAspectRatio:false,
+        plugins: { legend:{display:false}, tooltip:{ callbacks:{ label: c=>(c.parsed.y>=0?'+':'')+'$'+c.parsed.y.toFixed(2) } } },
         scales: {
-          x: { ticks: { color: '#444', font: { size: 9 } }, grid: { color: '#161616' } },
-          y: { ticks: { color: '#444', font: { size: 9 }, callback: v => '$' + v }, grid: { color: '#161616' } }
+          x: { ticks:{color:'#444',font:{size:9}}, grid:{color:'#161616'} },
+          y: { ticks:{color:'#444',font:{size:9},callback:v=>'$'+v}, grid:{color:'#161616'} }
         }
       }
     });
   }
 
-  // ── Main Render ──
   function render() {
     renderAccounts();
     renderStats();
