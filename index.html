@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>P&L Calendar — BIG P</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   /* ── Reset & Base ── */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -407,6 +408,51 @@
     user-select: none;
   }
 
+  /* ── Charts ── */
+  .charts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  @media (max-width: 600px) {
+    .charts-row { grid-template-columns: 1fr; }
+  }
+
+  .chart-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+  }
+
+  .chart-title {
+    font-size: 10px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+
+  .chart-canvas-wrap {
+    position: relative;
+    width: 100%;
+    height: 160px;
+  }
+
+  canvas { width: 100% !important; height: 100% !important; }
+
+  .chart-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 160px;
+    font-size: 11px;
+    color: var(--faint);
+  }
+
   /* ── Helpers ── */
   .empty-msg { font-size: 12px; color: var(--faint); padding: 4px 0; }
   .all-logged { font-size: 11px; color: var(--dim); margin-top: 4px; }
@@ -433,6 +479,24 @@
     </div>
 
     <div class="stats-panel" id="stats-panel"></div>
+  </div>
+
+  <!-- Charts -->
+  <div class="charts-row">
+    <div class="chart-panel">
+      <div class="chart-title">Cumulative P&L</div>
+      <div class="chart-canvas-wrap">
+        <div class="chart-empty" id="cumulative-empty">No data yet</div>
+        <canvas id="cumulative-chart" style="display:none"></canvas>
+      </div>
+    </div>
+    <div class="chart-panel">
+      <div class="chart-title">Daily P&L — <span id="bar-month-label"></span></div>
+      <div class="chart-canvas-wrap">
+        <div class="chart-empty" id="bar-empty">No data this month</div>
+        <canvas id="bar-chart" style="display:none"></canvas>
+      </div>
+    </div>
   </div>
 
   <div id="entry-panel"></div>
@@ -743,10 +807,138 @@
     document.getElementById('cal-grid').innerHTML = cells;
   }
 
+  // ── Charts ──
+  let cumulativeChart = null;
+  let barChart = null;
+
+  function renderCharts() {
+    renderCumulativeChart();
+    renderBarChart();
+  }
+
+  function renderCumulativeChart() {
+    const canvas  = document.getElementById('cumulative-chart');
+    const empty   = document.getElementById('cumulative-empty');
+
+    // Build sorted daily totals across all time
+    const dateMap = {};
+    data.entries.forEach(e => {
+      dateMap[e.date] = (dateMap[e.date] || 0) + e.pnl;
+    });
+    const sorted = Object.keys(dateMap).sort();
+
+    if (!sorted.length) {
+      canvas.style.display = 'none';
+      empty.style.display  = 'flex';
+      if (cumulativeChart) { cumulativeChart.destroy(); cumulativeChart = null; }
+      return;
+    }
+
+    canvas.style.display = 'block';
+    empty.style.display  = 'none';
+
+    let running = 0;
+    const labels = sorted.map(d => d.slice(5)); // MM-DD
+    const values = sorted.map(d => { running += dateMap[d]; return parseFloat(running.toFixed(2)); });
+    const lastVal = values[values.length - 1];
+    const lineColor = lastVal >= 0 ? '#4ade80' : '#f87171';
+
+    if (cumulativeChart) cumulativeChart.destroy();
+
+    const ctx = canvas.getContext('2d');
+    const grad = ctx.createLinearGradient(0, 0, 0, 160);
+    grad.addColorStop(0, lastVal >= 0 ? 'rgba(74,222,128,0.18)' : 'rgba(248,113,113,0.18)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+
+    cumulativeChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          data: values,
+          borderColor: lineColor,
+          borderWidth: 2,
+          backgroundColor: grad,
+          pointRadius: values.length > 20 ? 0 : 3,
+          pointBackgroundColor: lineColor,
+          tension: 0.3,
+          fill: true,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: {
+          callbacks: { label: ctx => (ctx.parsed.y >= 0 ? '+' : '') + '$' + ctx.parsed.y.toFixed(2) }
+        }},
+        scales: {
+          x: { ticks: { color: '#444', font: { size: 9 }, maxTicksLimit: 6 }, grid: { color: '#161616' } },
+          y: { ticks: { color: '#444', font: { size: 9 }, callback: v => '$' + v }, grid: { color: '#161616' } }
+        }
+      }
+    });
+  }
+
+  function renderBarChart() {
+    const canvas = document.getElementById('bar-chart');
+    const empty  = document.getElementById('bar-empty');
+    document.getElementById('bar-month-label').textContent = MONTH_NAMES[calMonth] + ' ' + calYear;
+
+    const prefix = `${calYear}-${String(calMonth + 1).padStart(2,'0')}`;
+    const monthEntries = data.entries.filter(e => e.date.startsWith(prefix));
+
+    const dateMap = {};
+    monthEntries.forEach(e => { dateMap[e.date] = (dateMap[e.date] || 0) + e.pnl; });
+    const sorted = Object.keys(dateMap).sort();
+
+    if (!sorted.length) {
+      canvas.style.display = 'none';
+      empty.style.display  = 'flex';
+      if (barChart) { barChart.destroy(); barChart = null; }
+      return;
+    }
+
+    canvas.style.display = 'block';
+    empty.style.display  = 'none';
+
+    const labels = sorted.map(d => parseInt(d.split('-')[2]));
+    const values = sorted.map(d => parseFloat(dateMap[d].toFixed(2)));
+    const colors = values.map(v => v >= 0 ? 'rgba(74,222,128,0.7)' : 'rgba(248,113,113,0.7)');
+    const borders = values.map(v => v >= 0 ? '#4ade80' : '#f87171');
+
+    if (barChart) barChart.destroy();
+
+    barChart = new Chart(document.getElementById('bar-chart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          data: values,
+          backgroundColor: colors,
+          borderColor: borders,
+          borderWidth: 1,
+          borderRadius: 3,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: {
+          callbacks: { label: ctx => (ctx.parsed.y >= 0 ? '+' : '') + '$' + ctx.parsed.y.toFixed(2) }
+        }},
+        scales: {
+          x: { ticks: { color: '#444', font: { size: 9 } }, grid: { color: '#161616' } },
+          y: { ticks: { color: '#444', font: { size: 9 }, callback: v => '$' + v }, grid: { color: '#161616' } }
+        }
+      }
+    });
+  }
+
   // ── Main Render ──
   function render() {
     renderAccounts();
     renderStats();
+    renderCharts();
     renderEntryPanel();
     renderCalendar();
   }
