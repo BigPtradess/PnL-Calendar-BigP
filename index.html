@@ -7,96 +7,74 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --bg:        #0a0a0a;
-    --surface:   #111111;
-    --surface2:  #0d0d0d;
-    --border:    #1e1e1e;
-    --border2:   #161616;
-    --text:      #f0f0f0;
-    --muted:     #888888;
-    --dim:       #444444;
-    --faint:     #333333;
-    --ghost:     #222222;
-    --green:     #4ade80;
-    --green-dim: #3a7a4a;
-    --red:       #f87171;
-    --red-dim:   #7a3a3a;
-    --white:     #ffffff;
-    --radius-sm: 6px;
-    --radius-md: 8px;
-    --radius-lg: 10px;
+    --bg: #0a0a0a; --surface: #111; --surface2: #0d0d0d;
+    --border: #1e1e1e; --border2: #161616; --text: #f0f0f0;
+    --muted: #888; --dim: #444; --faint: #333; --ghost: #222;
+    --green: #4ade80; --green-dim: #3a7a4a; --red: #f87171; --red-dim: #7a3a3a;
+    --white: #fff; --r-sm: 6px; --r-md: 8px; --r-lg: 10px;
   }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 1.5rem; font-size: 13px; }
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 1.5rem;
-    font-size: 13px;
+  /* Auth Screen */
+  #auth-screen {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; margin: -1.5rem;
   }
+  .auth-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r-lg); padding: 2rem; width: 100%; max-width: 360px; margin: 1rem;
+  }
+  .auth-title { font-size: 18px; font-weight: 600; color: var(--white); margin-bottom: 4px; }
+  .auth-sub { font-size: 12px; color: var(--dim); margin-bottom: 1.5rem; }
+  .auth-tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+  .auth-tab {
+    flex: 1; padding: 7px; border-radius: var(--r-sm); border: 1px solid var(--ghost);
+    background: none; color: var(--dim); font-size: 12px; font-weight: 600; cursor: pointer;
+    font-family: inherit; transition: all 0.15s;
+  }
+  .auth-tab.active { background: var(--white); color: var(--bg); border-color: var(--white); }
+  .auth-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+  .auth-field label { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; }
+  .auth-field input {
+    padding: 9px 10px; border-radius: var(--r-sm); border: 1px solid var(--ghost);
+    background: var(--surface2); color: var(--text); font-size: 13px; font-family: inherit;
+  }
+  .auth-field input:focus { outline: none; border-color: var(--dim); }
+  .auth-btn {
+    width: 100%; padding: 10px; background: var(--white); color: var(--bg);
+    border: none; border-radius: var(--r-sm); font-size: 13px; font-weight: 700;
+    cursor: pointer; font-family: inherit; margin-top: 4px; transition: background 0.15s;
+  }
+  .auth-btn:hover { background: #e5e5e5; }
+  .auth-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
+  .auth-error { font-size: 11px; color: var(--red); margin-top: 10px; min-height: 16px; }
 
+  /* App */
+  #app-screen { display: none; }
   .wrap { max-width: 860px; margin: 0 auto; }
-
-  h1 {
-    font-size: 17px;
-    font-weight: 500;
-    color: var(--white);
-    letter-spacing: -0.02em;
-    margin-bottom: 1.5rem;
+  .app-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+  .app-header h1 { font-size: 17px; font-weight: 500; color: var(--white); letter-spacing: -0.02em; }
+  .user-row { display: flex; align-items: center; gap: 10px; }
+  .user-email { font-size: 11px; color: var(--dim); }
+  .signout-btn {
+    background: none; border: 1px solid var(--ghost); color: var(--dim);
+    padding: 4px 10px; border-radius: var(--r-sm); font-size: 11px; cursor: pointer;
+    font-family: inherit; transition: all 0.15s;
   }
+  .signout-btn:hover { border-color: var(--red); color: var(--red); }
 
-  .top-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-  }
+  .top-row { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
 
   /* Accounts */
-  .accounts-panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 1rem;
-    flex: 1;
-    min-width: 240px;
-  }
-
-  .sec-label {
-    font-size: 10px;
-    color: var(--dim);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    font-weight: 600;
-    margin-bottom: 10px;
-  }
-
-  .account-list {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 10px;
-  }
-
-  .account-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 8px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-  }
-
+  .accounts-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 1rem; flex: 1; min-width: 240px; }
+  .sec-label { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; margin-bottom: 10px; }
+  .account-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+  .account-item { display: flex; align-items: center; gap: 8px; padding: 7px 8px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r-sm); }
   .account-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
   .account-info { flex: 1; min-width: 0; }
   .account-name { font-size: 12px; color: #ccc; font-weight: 500; }
   .account-meta { font-size: 10px; color: var(--dim); margin-top: 2px; }
-
   .account-right { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
   .account-total { font-size: 12px; font-weight: 600; }
   .account-total.pos { color: var(--green); }
@@ -104,471 +82,427 @@
   .account-ret { font-size: 10px; font-weight: 500; }
   .account-ret.pos { color: var(--green-dim); }
   .account-ret.neg { color: var(--red-dim); }
-
-  .remove-btn {
-    background: none;
-    border: none;
-    color: var(--faint);
-    cursor: pointer;
-    font-size: 12px;
-    padding: 2px 4px;
-    border-radius: 3px;
-    line-height: 1;
-    transition: color 0.15s;
-  }
+  .remove-btn { background: none; border: none; color: var(--faint); cursor: pointer; font-size: 12px; padding: 2px 4px; border-radius: 3px; transition: color 0.15s; }
   .remove-btn:hover { color: var(--red); }
-
   .add-account-row { display: flex; gap: 6px; flex-wrap: wrap; }
-
-  .add-account-row input {
-    flex: 1;
-    min-width: 80px;
-    font-size: 12px;
-    padding: 6px 8px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--ghost);
-    background: var(--surface2);
-    color: var(--text);
-    font-family: inherit;
-  }
+  .add-account-row input { flex: 1; min-width: 80px; font-size: 12px; padding: 6px 8px; border-radius: var(--r-sm); border: 1px solid var(--ghost); background: var(--surface2); color: var(--text); font-family: inherit; }
   .add-account-row input:focus { outline: none; border-color: var(--dim); }
-
-  .btn-primary {
-    background: var(--white);
-    color: var(--bg);
-    border: none;
-    padding: 6px 10px;
-    border-radius: var(--radius-sm);
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background 0.15s;
-    font-family: inherit;
-  }
+  .btn-primary { background: var(--white); color: var(--bg); border: none; padding: 6px 10px; border-radius: var(--r-sm); font-size: 11px; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: inherit; transition: background 0.15s; }
   .btn-primary:hover { background: #e5e5e5; }
 
   /* Stats */
-  .stats-panel {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    flex: 2;
-    min-width: 240px;
-  }
-
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 12px;
-  }
-
-  .stat-card-label {
-    font-size: 10px;
-    color: var(--dim);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 5px;
-  }
-
+  .stats-panel { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; flex: 2; min-width: 240px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); padding: 12px; }
+  .stat-card-label { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
   .stat-card-val { font-size: 20px; font-weight: 600; color: var(--white); }
   .stat-card-val.pos { color: var(--green); }
   .stat-card-val.neg { color: var(--red); }
 
   /* Charts */
-  .charts-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-  @media (max-width: 600px) { .charts-row { grid-template-columns: 1fr; } }
-
-  .chart-panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 1.25rem;
-  }
-
-  .chart-title {
-    font-size: 10px;
-    color: var(--dim);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    font-weight: 600;
-    margin-bottom: 14px;
-  }
-
+  .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  @media (max-width:600px) { .charts-row { grid-template-columns: 1fr; } }
+  .chart-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 1.25rem; }
+  .chart-title { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; margin-bottom: 14px; }
   .chart-canvas-wrap { position: relative; width: 100%; height: 160px; }
   canvas { width: 100% !important; height: 100% !important; }
+  .chart-empty { display: flex; align-items: center; justify-content: center; height: 160px; font-size: 11px; color: var(--faint); }
 
-  .chart-empty {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 160px;
-    font-size: 11px;
-    color: var(--faint);
-  }
-
-  /* Entry panel */
-  .entry-modal {
-    background: var(--surface);
-    border: 1px solid #242424;
-    border-radius: var(--radius-lg);
-    padding: 1.25rem;
-    margin-bottom: 1rem;
-  }
-
-  .entry-modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-  }
-
+  /* Entry */
+  .entry-modal { background: var(--surface); border: 1px solid #242424; border-radius: var(--r-lg); padding: 1.25rem; margin-bottom: 1rem; }
+  .entry-modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
   .entry-modal-title { font-size: 12px; font-weight: 600; color: var(--muted); }
-
-  .close-btn {
-    background: none;
-    border: none;
-    color: var(--dim);
-    cursor: pointer;
-    font-size: 16px;
-    padding: 0 4px;
-    transition: color 0.15s;
-  }
+  .close-btn { background: none; border: none; color: var(--dim); cursor: pointer; font-size: 16px; padding: 0 4px; transition: color 0.15s; }
   .close-btn:hover { color: var(--white); }
-
   .entries-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
-
-  .entry-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 6px 8px;
-    background: var(--surface2);
-    border-radius: var(--radius-sm);
-    font-size: 12px;
-  }
-
+  .entry-row { display: flex; align-items: center; gap: 10px; padding: 6px 8px; background: var(--surface2); border-radius: var(--r-sm); font-size: 12px; }
   .entry-row-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
   .entry-row-acc { flex: 1; color: var(--muted); }
   .entry-row-pnl { font-weight: 600; }
   .entry-row-pnl.pos { color: var(--green); }
   .entry-row-pnl.neg { color: var(--red); }
-  .entry-row-ret { font-size: 10px; color: var(--dim); }
+  .entry-row-ret { font-size: 10px; }
   .entry-row-ret.pos { color: var(--green-dim); }
   .entry-row-ret.neg { color: var(--red-dim); }
-
-  .entry-del {
-    background: none;
-    border: none;
-    color: #2a2a2a;
-    cursor: pointer;
-    font-size: 12px;
-    padding: 0 4px;
-    border-radius: 3px;
-    transition: color 0.15s;
-  }
+  .entry-del { background: none; border: none; color: #2a2a2a; cursor: pointer; font-size: 12px; padding: 0 4px; border-radius: 3px; transition: color 0.15s; }
   .entry-del:hover { color: var(--red); }
-
   .entry-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
   .entry-form-group { display: flex; flex-direction: column; gap: 4px; }
-
-  .entry-form-group label {
-    font-size: 10px;
-    color: var(--dim);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .entry-form-group input,
-  .entry-form-group select {
-    font-size: 12px;
-    padding: 7px 9px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--ghost);
-    background: var(--surface2);
-    color: var(--text);
-    font-family: inherit;
-  }
-
-  .entry-form-group input:focus,
-  .entry-form-group select:focus { outline: none; border-color: var(--dim); }
+  .entry-form-group label { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; }
+  .entry-form-group input, .entry-form-group select { font-size: 12px; padding: 7px 9px; border-radius: var(--r-sm); border: 1px solid var(--ghost); background: var(--surface2); color: var(--text); font-family: inherit; }
+  .entry-form-group input:focus, .entry-form-group select:focus { outline: none; border-color: var(--dim); }
   .entry-form-group select { min-width: 130px; }
-
-  .save-btn {
-    background: var(--white);
-    color: var(--bg);
-    border: none;
-    padding: 7px 16px;
-    border-radius: var(--radius-sm);
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    transition: background 0.15s;
-  }
+  .save-btn { background: var(--white); color: var(--bg); border: none; padding: 7px 16px; border-radius: var(--r-sm); font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.15s; }
   .save-btn:hover { background: #e5e5e5; }
 
   /* Calendar */
-  .cal-section {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 1.25rem;
-    margin-bottom: 1rem;
-  }
-
+  .cal-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 1.25rem; margin-bottom: 1rem; }
   .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
   .cal-nav span { font-size: 14px; font-weight: 500; color: var(--white); }
-  .cal-nav button {
-    background: none;
-    border: 1px solid var(--ghost);
-    color: #666;
-    padding: 4px 11px;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    font-size: 12px;
-    transition: border-color 0.15s, color 0.15s;
-  }
+  .cal-nav button { background: none; border: 1px solid var(--ghost); color: #666; padding: 4px 11px; border-radius: var(--r-sm); cursor: pointer; font-size: 12px; transition: border-color 0.15s, color 0.15s; }
   .cal-nav button:hover { border-color: #444; color: var(--white); }
-
   .cal-days-header { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; margin-bottom: 3px; }
-  .cal-day-name {
-    text-align: center;
-    font-size: 9px;
-    color: var(--faint);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    padding: 4px 0;
-  }
-
+  .cal-day-name { text-align: center; font-size: 9px; color: var(--faint); text-transform: uppercase; letter-spacing: 0.06em; padding: 4px 0; }
   .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; }
-
-  .cal-cell {
-    background: var(--surface2);
-    border: 1px solid var(--border2);
-    border-radius: var(--radius-sm);
-    min-height: 80px;
-    padding: 7px;
-    cursor: default;
-    transition: border-color 0.15s;
-  }
-  .cal-cell.today    { border-color: #2a2a2a; }
+  .cal-cell { background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--r-sm); min-height: 80px; padding: 7px; cursor: default; transition: border-color 0.15s; }
+  .cal-cell.today { border-color: #2a2a2a; }
   .cal-cell.has-data { cursor: pointer; }
   .cal-cell.has-data:hover { border-color: #2e2e2e; }
   .cal-cell.selected { border-color: #3a3a3a; }
   .cal-cell.other-month .cal-cell-num { color: #1e1e1e; }
-
   .cal-cell-num { font-size: 10px; color: var(--faint); font-weight: 500; margin-bottom: 5px; }
   .cal-cell.today .cal-cell-num { color: var(--muted); }
-
   .cal-total { font-size: 12px; font-weight: 600; line-height: 1.3; margin-bottom: 2px; }
   .cal-total.pos { color: var(--green); }
   .cal-total.neg { color: var(--red); }
-
   .cal-ret { font-size: 9px; margin-bottom: 4px; }
   .cal-ret.pos { color: var(--green-dim); }
   .cal-ret.neg { color: var(--red-dim); }
-
   .cal-breakdown { display: flex; flex-direction: column; gap: 2px; }
   .cal-acc-line { display: flex; align-items: center; gap: 4px; font-size: 10px; color: #555; }
-  .cal-acc-dot  { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
-  .cal-acc-val  { font-weight: 500; }
+  .cal-acc-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .cal-acc-val { font-weight: 500; }
   .cal-acc-val.pos { color: var(--green-dim); }
   .cal-acc-val.neg { color: var(--red-dim); }
+
+  /* Weekly row */
+  .week-total-row {
+    display: flex; align-items: center; justify-content: flex-end;
+    padding: 3px 6px; margin-top: 2px; margin-bottom: 1px;
+  }
+  .week-badge {
+    font-size: 10px; font-weight: 600; padding: 2px 8px;
+    border-radius: 20px; background: var(--surface);
+    border: 1px solid var(--border2);
+  }
+  .week-badge.pos { color: var(--green); border-color: var(--green-dim); }
+  .week-badge.neg { color: var(--red); border-color: var(--red-dim); }
+  .week-badge.zero { color: var(--faint); }
 
   .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; font-size: 11px; color: var(--faint); }
   .legend span { display: flex; align-items: center; gap: 5px; }
   .legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 
-  .watermark {
-    position: fixed; bottom: 16px; right: 20px;
-    font-size: 10px; color: #1e1e1e;
-    letter-spacing: 0.08em; text-transform: uppercase;
-    pointer-events: none; user-select: none;
-  }
+  /* Loading */
+  #loading-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: -1.5rem; }
+  .loading-text { color: var(--dim); font-size: 13px; }
 
-  .empty-msg  { font-size: 12px; color: var(--faint); padding: 4px 0; }
+  .watermark { position: fixed; bottom: 16px; right: 20px; font-size: 10px; color: #1e1e1e; letter-spacing: 0.08em; text-transform: uppercase; pointer-events: none; user-select: none; }
+  .empty-msg { font-size: 12px; color: var(--faint); padding: 4px 0; }
   .all-logged { font-size: 11px; color: var(--dim); margin-top: 4px; }
+  .saving-indicator { font-size: 10px; color: var(--dim); margin-left: 8px; opacity: 0; transition: opacity 0.3s; }
+  .saving-indicator.show { opacity: 1; }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>P&L Calendar</h1>
 
-  <div class="top-row">
-    <div class="accounts-panel">
-      <div class="sec-label">Accounts</div>
-      <div class="account-list" id="account-list"></div>
-      <div class="add-account-row">
-        <input type="text" id="new-acc-name" placeholder="Account name" maxlength="24"
-          onkeydown="if(event.key==='Enter') document.getElementById('new-acc-size').focus()">
-        <input type="number" id="new-acc-size" placeholder="Size ($)" min="0" style="width:90px"
-          onkeydown="if(event.key==='Enter') addAccount()">
-        <button class="btn-primary" onclick="addAccount()">+ Add</button>
-      </div>
+<!-- Loading -->
+<div id="loading-screen"><div class="loading-text">Loading...</div></div>
+
+<!-- Auth -->
+<div id="auth-screen" style="display:none">
+  <div class="auth-box">
+    <div class="auth-title">P&L Calendar</div>
+    <div class="auth-sub">Your trades, synced everywhere</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Log in</button>
+      <button class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Sign up</button>
     </div>
-    <div class="stats-panel" id="stats-panel"></div>
+    <div class="auth-field">
+      <label>Email</label>
+      <input type="email" id="auth-email" placeholder="you@email.com" onkeydown="if(event.key==='Enter')document.getElementById('auth-pass').focus()">
+    </div>
+    <div class="auth-field">
+      <label>Password</label>
+      <input type="password" id="auth-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')authSubmit()">
+    </div>
+    <div id="auth-confirm-wrap" class="auth-field" style="display:none">
+      <label>Confirm password</label>
+      <input type="password" id="auth-confirm" placeholder="••••••••" onkeydown="if(event.key==='Enter')authSubmit()">
+    </div>
+    <button class="auth-btn" id="auth-submit-btn" onclick="authSubmit()">Log in</button>
+    <div class="auth-error" id="auth-error"></div>
   </div>
+</div>
 
-  <div class="charts-row">
-    <div class="chart-panel">
-      <div class="chart-title">Cumulative P&L</div>
-      <div class="chart-canvas-wrap">
-        <div class="chart-empty" id="cumulative-empty">No data yet</div>
-        <canvas id="cumulative-chart" style="display:none"></canvas>
+<!-- App -->
+<div id="app-screen" style="display:none">
+  <div class="wrap">
+    <div class="app-header">
+      <h1>P&L Calendar <span class="saving-indicator" id="saving-indicator">Saving...</span></h1>
+      <div class="user-row">
+        <span class="user-email" id="user-email-label"></span>
+        <button class="signout-btn" onclick="signOut()">Sign out</button>
       </div>
     </div>
-    <div class="chart-panel">
-      <div class="chart-title">Daily P&L — <span id="bar-month-label"></span></div>
-      <div class="chart-canvas-wrap">
-        <div class="chart-empty" id="bar-empty">No data this month</div>
-        <canvas id="bar-chart" style="display:none"></canvas>
+
+    <div class="top-row">
+      <div class="accounts-panel">
+        <div class="sec-label">Accounts</div>
+        <div class="account-list" id="account-list"></div>
+        <div class="add-account-row">
+          <input type="text" id="new-acc-name" placeholder="Account name" maxlength="24"
+            onkeydown="if(event.key==='Enter')document.getElementById('new-acc-size').focus()">
+          <input type="number" id="new-acc-size" placeholder="Size ($)" min="0" style="width:90px"
+            onkeydown="if(event.key==='Enter')addAccount()">
+          <button class="btn-primary" onclick="addAccount()">+ Add</button>
+        </div>
+      </div>
+      <div class="stats-panel" id="stats-panel"></div>
+    </div>
+
+    <div class="charts-row">
+      <div class="chart-panel">
+        <div class="chart-title">Cumulative P&L</div>
+        <div class="chart-canvas-wrap">
+          <div class="chart-empty" id="cumulative-empty">No data yet</div>
+          <canvas id="cumulative-chart" style="display:none"></canvas>
+        </div>
+      </div>
+      <div class="chart-panel">
+        <div class="chart-title">Daily P&L — <span id="bar-month-label"></span></div>
+        <div class="chart-canvas-wrap">
+          <div class="chart-empty" id="bar-empty">No data this month</div>
+          <canvas id="bar-chart" style="display:none"></canvas>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div id="entry-panel"></div>
+    <div id="entry-panel"></div>
 
-  <div class="cal-section">
-    <div class="cal-nav">
-      <button onclick="changeMonth(-1)">&#8592;</button>
-      <span id="month-label"></span>
-      <button onclick="changeMonth(1)">&#8594;</button>
-    </div>
-    <div class="cal-days-header" id="cal-days-header"></div>
-    <div class="cal-grid" id="cal-grid"></div>
-    <div class="legend">
-      <span><span class="legend-dot" style="background:#4ade80"></span>Profitable day</span>
-      <span><span class="legend-dot" style="background:#f87171"></span>Loss day</span>
-      <span><span class="legend-dot" style="background:#333"></span>Break-even</span>
+    <div class="cal-section">
+      <div class="cal-nav">
+        <button onclick="changeMonth(-1)">&#8592;</button>
+        <span id="month-label"></span>
+        <button onclick="changeMonth(1)">&#8594;</button>
+      </div>
+      <div class="cal-days-header" id="cal-days-header"></div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div class="legend">
+        <span><span class="legend-dot" style="background:#4ade80"></span>Profitable day</span>
+        <span><span class="legend-dot" style="background:#f87171"></span>Loss day</span>
+        <span><span class="legend-dot" style="background:#333"></span>Break-even</span>
+      </div>
     </div>
   </div>
 </div>
 
 <div class="watermark">made &amp; designed by BIG P</div>
 
-<script>
-  const STORAGE_KEY  = 'bigp_pnl_cal';
-  const COLORS       = ['#a78bfa','#60a5fa','#4ade80','#f97316','#f472b6','#facc15','#38bdf8','#c084fc'];
-  const MONTH_NAMES  = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const DAY_NAMES    = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as fbSignOut, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, onSnapshot, setDoc }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  let data = { accounts: [], entries: [] };
+  const firebaseConfig = {
+    apiKey: "AIzaSyAp4UUnl17HzKoqmVDXltlYNYfxCUd283s",
+    authDomain: "pnl-calendar-80dd8.firebaseapp.com",
+    projectId: "pnl-calendar-80dd8",
+    storageBucket: "pnl-calendar-80dd8.firebasestorage.app",
+    messagingSenderId: "612261217696",
+    appId: "1:612261217696:web:3b7c2371331a6d851790c5"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  // ── Constants ──
+  const COLORS      = ['#a78bfa','#60a5fa','#4ade80','#f97316','#f472b6','#facc15','#38bdf8','#c084fc'];
+  const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const DAY_NAMES   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  // ── State ──
+  let data         = { accounts: [], entries: [] };
   let calYear      = new Date().getFullYear();
   let calMonth     = new Date().getMonth();
   let selectedDate = null;
+  let currentUser  = null;
+  let authMode     = 'login';
+  let saveTimeout  = null;
+  let cumulativeChart = null;
+  let barChart        = null;
+  let unsubSnapshot   = null;
 
-  try { data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"accounts":[],"entries":[]}'); } catch(e) {}
-  // migrate old accounts that have no size field
-  data.accounts.forEach(a => { if (a.size === undefined) a.size = 0; });
+  // ── Auth UI ──
+  window.switchTab = (mode) => {
+    authMode = mode;
+    document.getElementById('tab-login').classList.toggle('active', mode === 'login');
+    document.getElementById('tab-signup').classList.toggle('active', mode === 'signup');
+    document.getElementById('auth-confirm-wrap').style.display = mode === 'signup' ? 'flex' : 'none';
+    document.getElementById('auth-submit-btn').textContent = mode === 'login' ? 'Log in' : 'Create account';
+    document.getElementById('auth-error').textContent = '';
+  };
 
-  function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {} }
-  function getColor(i) { return COLORS[i % COLORS.length]; }
+  window.authSubmit = async () => {
+    const email    = document.getElementById('auth-email').value.trim();
+    const pass     = document.getElementById('auth-pass').value;
+    const confirm  = document.getElementById('auth-confirm').value;
+    const errEl    = document.getElementById('auth-error');
+    const btn      = document.getElementById('auth-submit-btn');
+    errEl.textContent = '';
+    if (!email || !pass) { errEl.textContent = 'Please fill in all fields.'; return; }
+    if (authMode === 'signup' && pass !== confirm) { errEl.textContent = 'Passwords do not match.'; return; }
+    if (authMode === 'signup' && pass.length < 6)  { errEl.textContent = 'Password must be at least 6 characters.'; return; }
+    btn.disabled = true;
+    btn.textContent = authMode === 'login' ? 'Logging in...' : 'Creating account...';
+    try {
+      if (authMode === 'login') {
+        await signInWithEmailAndPassword(auth, email, pass);
+      } else {
+        await createUserWithEmailAndPassword(auth, email, pass);
+      }
+    } catch (e) {
+      btn.disabled = false;
+      btn.textContent = authMode === 'login' ? 'Log in' : 'Create account';
+      const msgs = {
+        'auth/user-not-found':   'No account found with this email.',
+        'auth/wrong-password':   'Wrong password.',
+        'auth/email-already-in-use': 'An account already exists with this email.',
+        'auth/invalid-email':    'Invalid email address.',
+        'auth/invalid-credential': 'Wrong email or password.',
+      };
+      errEl.textContent = msgs[e.code] || e.message;
+    }
+  };
 
-  function fmt(val, dec = 2) { return (val >= 0 ? '+' : '') + '$' + val.toFixed(dec); }
-  function fmtSize(val) { return '$' + Number(val).toLocaleString(); }
-  function fmtRet(pnl, size) {
-    if (!size) return '';
-    const pct = (pnl / size) * 100;
-    return (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+  window.signOut = async () => {
+    if (unsubSnapshot) unsubSnapshot();
+    await fbSignOut(auth);
+  };
+
+  // ── Auth state ──
+  onAuthStateChanged(auth, (user) => {
+    document.getElementById('loading-screen').style.display = 'none';
+    if (user) {
+      currentUser = user;
+      document.getElementById('auth-screen').style.display  = 'none';
+      document.getElementById('app-screen').style.display   = 'block';
+      document.getElementById('user-email-label').textContent = user.email;
+      loadUserData();
+    } else {
+      currentUser = null;
+      data = { accounts: [], entries: [] };
+      if (unsubSnapshot) { unsubSnapshot(); unsubSnapshot = null; }
+      document.getElementById('app-screen').style.display  = 'none';
+      document.getElementById('auth-screen').style.display = 'flex';
+      document.getElementById('auth-email').value = '';
+      document.getElementById('auth-pass').value  = '';
+      document.getElementById('auth-error').textContent = '';
+      document.getElementById('auth-submit-btn').disabled = false;
+      document.getElementById('auth-submit-btn').textContent = 'Log in';
+    }
+  });
+
+  // ── Firestore ──
+  function loadUserData() {
+    const ref = doc(db, 'users', currentUser.uid);
+    if (unsubSnapshot) unsubSnapshot();
+    unsubSnapshot = onSnapshot(ref, (snap) => {
+      if (snap.exists()) {
+        data = snap.data();
+        data.accounts = data.accounts || [];
+        data.entries  = data.entries  || [];
+        data.accounts.forEach(a => { if (a.size === undefined) a.size = 0; });
+      } else {
+        data = { accounts: [], entries: [] };
+      }
+      render();
+    });
   }
 
-  function getAccountPnl(accId) {
-    return data.entries.filter(e => e.accountId === accId).reduce((s,e) => s + e.pnl, 0);
+  function saveData() {
+    if (!currentUser) return;
+    const ind = document.getElementById('saving-indicator');
+    ind.classList.add('show');
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(async () => {
+      await setDoc(doc(db, 'users', currentUser.uid), data);
+      ind.classList.remove('show');
+    }, 600);
   }
 
-  function getDayTotal(dateStr) {
-    return data.entries.filter(e => e.date === dateStr).reduce((s,e) => s + e.pnl, 0);
-  }
-
-  // Total capital across all accounts that have a size set
-  function totalCapital() {
-    return data.accounts.reduce((s,a) => s + (a.size || 0), 0);
-  }
+  // ── Helpers ──
+  const getColor  = i => COLORS[i % COLORS.length];
+  const fmt       = (v, d=2) => (v>=0?'+':'')+'$'+v.toFixed(d);
+  const fmtSize   = v => '$'+Number(v).toLocaleString();
+  const fmtRet    = (pnl, size) => { if (!size) return ''; const p=(pnl/size)*100; return (p>=0?'+':'')+p.toFixed(2)+'%'; };
+  const getAccPnl = id => data.entries.filter(e=>e.accountId===id).reduce((s,e)=>s+e.pnl,0);
+  const getDayTotal = ds => data.entries.filter(e=>e.date===ds).reduce((s,e)=>s+e.pnl,0);
+  const totalCapital = () => data.accounts.reduce((s,a)=>s+(a.size||0),0);
 
   // ── Account actions ──
-  function addAccount() {
+  window.addAccount = () => {
     const nameEl = document.getElementById('new-acc-name');
     const sizeEl = document.getElementById('new-acc-size');
     const name   = nameEl.value.trim();
     const size   = parseFloat(sizeEl.value) || 0;
     if (!name) return;
-    if (data.accounts.some(a => a.name.toLowerCase() === name.toLowerCase())) { nameEl.value = ''; sizeEl.value = ''; return; }
+    if (data.accounts.some(a=>a.name.toLowerCase()===name.toLowerCase())) { nameEl.value=''; sizeEl.value=''; return; }
     data.accounts.push({ id: Date.now(), name, size });
-    nameEl.value = ''; sizeEl.value = '';
-    save(); render();
-  }
+    nameEl.value=''; sizeEl.value='';
+    saveData(); render();
+  };
 
-  function removeAccount(id) {
-    data.accounts = data.accounts.filter(a => a.id !== id);
-    data.entries  = data.entries.filter(e => e.accountId !== id);
-    save(); render();
-  }
+  window.removeAccount = id => {
+    data.accounts = data.accounts.filter(a=>a.id!==id);
+    data.entries  = data.entries.filter(e=>e.accountId!==id);
+    saveData(); render();
+  };
 
-  function updateSize(id, val) {
-    const acc = data.accounts.find(a => a.id === id);
-    if (acc) { acc.size = parseFloat(val) || 0; save(); render(); }
-  }
+  window.updateSize = (id, val) => {
+    const acc = data.accounts.find(a=>a.id===id);
+    if (acc) { acc.size = parseFloat(val)||0; saveData(); render(); }
+  };
 
   // ── Entry actions ──
-  function addEntry() {
+  window.addEntry = () => {
     const dateVal = document.getElementById('entry-date').value;
     const accId   = parseInt(document.getElementById('entry-acc').value);
     const pnl     = parseFloat(document.getElementById('entry-pnl').value);
     if (!dateVal || !accId || isNaN(pnl)) return;
-    const existing = data.entries.find(e => e.date === dateVal && e.accountId === accId);
-    if (existing) { existing.pnl = pnl; } else { data.entries.push({ id: Date.now(), date: dateVal, accountId: accId, pnl }); }
-    save(); render();
-  }
+    const existing = data.entries.find(e=>e.date===dateVal&&e.accountId===accId);
+    if (existing) { existing.pnl=pnl; } else { data.entries.push({id:Date.now(),date:dateVal,accountId:accId,pnl}); }
+    saveData(); render();
+  };
 
-  function removeEntry(id) {
-    data.entries = data.entries.filter(e => e.id !== id);
-    save(); render();
-  }
+  window.removeEntry = id => {
+    data.entries = data.entries.filter(e=>e.id!==id);
+    saveData(); render();
+  };
 
-  function changeMonth(dir) {
+  window.changeMonth = dir => {
     calMonth += dir;
-    if (calMonth > 11) { calMonth = 0; calYear++; }
-    if (calMonth < 0)  { calMonth = 11; calYear--; }
+    if (calMonth>11){calMonth=0;calYear++;} if (calMonth<0){calMonth=11;calYear--;}
     renderCalendar(); renderBarChart();
-  }
+  };
 
-  function openDay(dateStr) {
-    selectedDate = dateStr;
-    render();
-    setTimeout(() => document.getElementById('entry-panel')?.scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
-  }
+  window.openDay = ds => {
+    selectedDate = ds; render();
+    setTimeout(()=>document.getElementById('entry-panel')?.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+  };
 
-  function closeEntry() { selectedDate = null; render(); }
+  window.closeEntry = () => { selectedDate=null; render(); };
 
   // ── Renderers ──
   function renderAccounts() {
     const el = document.getElementById('account-list');
-    if (!data.accounts.length) { el.innerHTML = '<div class="empty-msg">No accounts yet</div>'; return; }
-    el.innerHTML = data.accounts.map((a, i) => {
-      const pnl = getAccountPnl(a.id);
-      const cls = pnl >= 0 ? 'pos' : 'neg';
-      const ret = a.size ? `<span class="account-ret ${cls}">${fmtRet(pnl, a.size)}</span>` : '';
-      const sizeTxt = a.size ? fmtSize(a.size) : '—';
+    if (!data.accounts.length) { el.innerHTML='<div class="empty-msg">No accounts yet</div>'; return; }
+    el.innerHTML = data.accounts.map((a,i) => {
+      const pnl=getAccPnl(a.id), cls=pnl>=0?'pos':'neg';
+      const ret=a.size?`<span class="account-ret ${cls}">${fmtRet(pnl,a.size)}</span>`:'';
       return `<div class="account-item">
         <div class="account-dot" style="background:${getColor(i)}"></div>
         <div class="account-info">
           <div class="account-name">${a.name}</div>
-          <div class="account-meta">
-            Size: <input type="number" value="${a.size || ''}" placeholder="Set size"
-              style="background:none;border:none;border-bottom:1px solid #2a2a2a;color:var(--dim);font-size:10px;width:70px;padding:1px 2px;font-family:inherit"
-              onchange="updateSize(${a.id}, this.value)" onclick="event.stopPropagation()">
-          </div>
+          <div class="account-meta">Size: <input type="number" value="${a.size||''}" placeholder="Set size"
+            style="background:none;border:none;border-bottom:1px solid #2a2a2a;color:var(--dim);font-size:10px;width:70px;padding:1px 2px;font-family:inherit"
+            onchange="updateSize(${a.id},this.value)" onclick="event.stopPropagation()"></div>
         </div>
         <div class="account-right">
-          <div class="account-total ${cls}">${fmt(pnl)}</div>
-          ${ret}
+          <div class="account-total ${cls}">${fmt(pnl)}</div>${ret}
         </div>
         <button class="remove-btn" onclick="removeAccount(${a.id})">✕</button>
       </div>`;
@@ -576,16 +510,15 @@
   }
 
   function renderStats() {
-    const totalPnl  = data.entries.reduce((s,e) => s + e.pnl, 0);
-    const allDays   = [...new Set(data.entries.map(e => e.date))];
-    const dayTotals = allDays.map(d => getDayTotal(d));
-    const profDays  = dayTotals.filter(v => v > 0).length;
-    const lossDays  = dayTotals.filter(v => v < 0).length;
-    const winRate   = allDays.length > 0 ? Math.round(profDays / allDays.length * 100) : 0;
+    const totalPnl  = data.entries.reduce((s,e)=>s+e.pnl,0);
+    const allDays   = [...new Set(data.entries.map(e=>e.date))];
+    const dayTotals = allDays.map(d=>getDayTotal(d));
+    const profDays  = dayTotals.filter(v=>v>0).length;
+    const lossDays  = dayTotals.filter(v=>v<0).length;
+    const winRate   = allDays.length>0?Math.round(profDays/allDays.length*100):0;
     const capital   = totalCapital();
-    const overallRet = capital ? fmtRet(totalPnl, capital) : '—';
-    const cls = totalPnl >= 0 ? 'pos' : 'neg';
-
+    const overallRet= capital?fmtRet(totalPnl,capital):'—';
+    const cls       = totalPnl>=0?'pos':'neg';
     document.getElementById('stats-panel').innerHTML = `
       <div class="stat-card"><div class="stat-card-label">Total P&L</div><div class="stat-card-val ${cls}">${fmt(totalPnl)}</div></div>
       <div class="stat-card"><div class="stat-card-label">Overall Return</div><div class="stat-card-val ${cls}">${overallRet}</div></div>
@@ -597,191 +530,157 @@
 
   function renderEntryPanel() {
     const el = document.getElementById('entry-panel');
-    if (!selectedDate || !data.accounts.length) { el.innerHTML = ''; return; }
-
-    const dayEntries        = data.entries.filter(e => e.date === selectedDate);
-    const loggedIds         = new Set(dayEntries.map(e => e.accountId));
-    const availableAccounts = data.accounts.filter(a => !loggedIds.has(a.id));
-
-    const entriesHtml = dayEntries.length
-      ? `<div class="entries-list">${dayEntries.map(e => {
-          const acc = data.accounts.find(a => a.id === e.accountId);
-          const idx = data.accounts.indexOf(acc);
-          const cls = e.pnl >= 0 ? 'pos' : 'neg';
-          const ret = acc && acc.size ? `<span class="entry-row-ret ${cls}">${fmtRet(e.pnl, acc.size)}</span>` : '';
-          return `<div class="entry-row">
-            <div class="entry-row-dot" style="background:${getColor(idx)}"></div>
-            <div class="entry-row-acc">${acc ? acc.name : 'Unknown'}</div>
-            ${ret}
-            <div class="entry-row-pnl ${cls}">${fmt(e.pnl)}</div>
-            <button class="entry-del" onclick="removeEntry(${e.id})">✕</button>
-          </div>`;
-        }).join('')}</div>`
-      : '';
-
-    const addFormHtml = availableAccounts.length
-      ? `<div class="entry-form">
-          <div class="entry-form-group">
-            <label>Account</label>
-            <select id="entry-acc">
-              ${availableAccounts.map(a => `<option value="${a.id}">${a.name}${a.size ? ' (' + fmtSize(a.size) + ')' : ''}</option>`).join('')}
-            </select>
-          </div>
-          <div class="entry-form-group">
-            <label>P&L ($)</label>
-            <input type="number" id="entry-pnl" placeholder="e.g. 420" style="width:110px">
-          </div>
-          <input type="hidden" id="entry-date" value="${selectedDate}">
-          <button class="save-btn" onclick="addEntry()">Save</button>
-        </div>`
-      : '<div class="all-logged">All accounts logged for this day</div>';
-
-    el.innerHTML = `<div class="entry-modal">
+    if (!selectedDate||!data.accounts.length){el.innerHTML='';return;}
+    const dayEntries=data.entries.filter(e=>e.date===selectedDate);
+    const loggedIds=new Set(dayEntries.map(e=>e.accountId));
+    const avail=data.accounts.filter(a=>!loggedIds.has(a.id));
+    const entriesHtml=dayEntries.length?`<div class="entries-list">${dayEntries.map(e=>{
+      const acc=data.accounts.find(a=>a.id===e.accountId);
+      const idx=data.accounts.indexOf(acc);
+      const cls=e.pnl>=0?'pos':'neg';
+      const ret=acc&&acc.size?`<span class="entry-row-ret ${cls}">${fmtRet(e.pnl,acc.size)}</span>`:'';
+      return `<div class="entry-row">
+        <div class="entry-row-dot" style="background:${getColor(idx)}"></div>
+        <div class="entry-row-acc">${acc?acc.name:'Unknown'}</div>${ret}
+        <div class="entry-row-pnl ${cls}">${fmt(e.pnl)}</div>
+        <button class="entry-del" onclick="removeEntry(${e.id})">✕</button>
+      </div>`;
+    }).join('')}</div>`:'';
+    const addFormHtml=avail.length?`<div class="entry-form">
+      <div class="entry-form-group"><label>Account</label>
+        <select id="entry-acc">${avail.map(a=>`<option value="${a.id}">${a.name}${a.size?' ('+fmtSize(a.size)+')':''}</option>`).join('')}</select>
+      </div>
+      <div class="entry-form-group"><label>P&L ($)</label>
+        <input type="number" id="entry-pnl" placeholder="e.g. 420" style="width:110px">
+      </div>
+      <input type="hidden" id="entry-date" value="${selectedDate}">
+      <button class="save-btn" onclick="addEntry()">Save</button>
+    </div>`:'<div class="all-logged">All accounts logged for this day</div>';
+    el.innerHTML=`<div class="entry-modal">
       <div class="entry-modal-header">
         <div class="entry-modal-title">${selectedDate}</div>
         <button class="close-btn" onclick="closeEntry()">✕</button>
-      </div>
-      ${entriesHtml}
-      ${addFormHtml}
+      </div>${entriesHtml}${addFormHtml}
     </div>`;
   }
 
   function renderCalendar() {
-    document.getElementById('month-label').textContent = `${MONTH_NAMES[calMonth]} ${calYear}`;
-    document.getElementById('cal-days-header').innerHTML = DAY_NAMES.map(d => `<div class="cal-day-name">${d}</div>`).join('');
+    document.getElementById('month-label').textContent=`${MONTH_NAMES[calMonth]} ${calYear}`;
+    document.getElementById('cal-days-header').innerHTML=DAY_NAMES.map(d=>`<div class="cal-day-name">${d}</div>`).join('');
+    const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+    const firstDay=new Date(calYear,calMonth,1).getDay();
+    const prevDays=new Date(calYear,calMonth,0).getDate();
+    const today=new Date().toISOString().split('T')[0];
+    const capital=totalCapital();
+    const byDate={};
+    data.entries.forEach(e=>{if(!byDate[e.date])byDate[e.date]=[];byDate[e.date].push(e);});
 
-    const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
-    const firstDay    = new Date(calYear, calMonth, 1).getDay();
-    const prevDays    = new Date(calYear, calMonth, 0).getDate();
-    const today       = new Date().toISOString().split('T')[0];
-    const capital     = totalCapital();
+    // Build weeks for weekly totals
+    let cells='';
+    let weekTotal=0;
+    let cellCount=0;
 
-    const byDate = {};
-    data.entries.forEach(e => { if (!byDate[e.date]) byDate[e.date]=[]; byDate[e.date].push(e); });
-
-    let cells = '';
-
-    for (let i = 0; i < firstDay; i++) {
-      cells += `<div class="cal-cell other-month"><div class="cal-cell-num">${prevDays-firstDay+i+1}</div></div>`;
+    // Padding cells before month starts
+    for(let i=0;i<firstDay;i++){
+      const day=prevDays-firstDay+i+1;
+      cells+=`<div class="cal-cell other-month"><div class="cal-cell-num">${day}</div></div>`;
+      cellCount++;
     }
 
-    for (let d = 1; d <= daysInMonth; d++) {
-      const ds      = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      const entries = byDate[ds] || [];
-      const total   = entries.reduce((s,e) => s+e.pnl, 0);
-      const isToday = ds === today;
-      const isSel   = ds === selectedDate;
-
-      const classes = ['cal-cell', isToday?'today':'', entries.length?'has-data':'', isSel?'selected':''].filter(Boolean).join(' ');
-
-      let inner = `<div class="cal-cell-num">${d}</div>`;
-      if (entries.length) {
-        const pc  = total > 0 ? 'pos' : total < 0 ? 'neg' : '';
-        const ret = capital ? `<div class="cal-ret ${pc}">${fmtRet(total, capital)}</div>` : '';
-        inner += `<div class="cal-total ${pc}">${fmt(total,0)}</div>${ret}`;
-        inner += `<div class="cal-breakdown">${entries.slice(0,3).map(e => {
-          const acc = data.accounts.find(a => a.id === e.accountId);
-          const idx = data.accounts.indexOf(acc);
-          const vpc = e.pnl >= 0 ? 'pos' : 'neg';
-          return `<div class="cal-acc-line">
-            <span class="cal-acc-dot" style="background:${getColor(idx)}"></span>
-            <span class="cal-acc-val ${vpc}">${fmt(e.pnl,0)}</span>
-          </div>`;
+    for(let d=1;d<=daysInMonth;d++){
+      const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const entries=byDate[ds]||[];
+      const total=entries.reduce((s,e)=>s+e.pnl,0);
+      weekTotal+=total;
+      const isToday=ds===today, isSel=ds===selectedDate;
+      const classes=['cal-cell',isToday?'today':'',entries.length?'has-data':'',isSel?'selected':''].filter(Boolean).join(' ');
+      let inner=`<div class="cal-cell-num">${d}</div>`;
+      if(entries.length){
+        const pc=total>0?'pos':total<0?'neg':'';
+        const ret=capital?`<div class="cal-ret ${pc}">${fmtRet(total,capital)}</div>`:'';
+        inner+=`<div class="cal-total ${pc}">${fmt(total,0)}</div>${ret}`;
+        inner+=`<div class="cal-breakdown">${entries.slice(0,3).map(e=>{
+          const acc=data.accounts.find(a=>a.id===e.accountId);
+          const idx=data.accounts.indexOf(acc);
+          const vpc=e.pnl>=0?'pos':'neg';
+          return `<div class="cal-acc-line"><span class="cal-acc-dot" style="background:${getColor(idx)}"></span><span class="cal-acc-val ${vpc}">${fmt(e.pnl,0)}</span></div>`;
         }).join('')}${entries.length>3?`<div style="font-size:9px;color:#333">+${entries.length-3} more</div>`:''}</div>`;
       }
-      cells += `<div class="${classes}" onclick="openDay('${ds}')">${inner}</div>`;
+      cells+=`<div class="${classes}" onclick="openDay('${ds}')">${inner}</div>`;
+      cellCount++;
+
+      // End of week — insert weekly total row
+      if(cellCount%7===0){
+        const wc=weekTotal>0?'pos':weekTotal<0?'neg':'zero';
+        const wLabel=weekTotal===0?'—':fmt(weekTotal,0);
+        cells+=`<div style="grid-column:1/-1"><div class="week-total-row"><span class="week-badge ${wc}">Week: ${wLabel}</span></div></div>`;
+        weekTotal=0;
+      }
     }
 
-    const remaining = (7-(firstDay+daysInMonth)%7)%7;
-    for (let i=1; i<=remaining; i++) {
-      cells += `<div class="cal-cell other-month"><div class="cal-cell-num">${i}</div></div>`;
+    // Remaining padding
+    const remaining=(7-(firstDay+daysInMonth)%7)%7;
+    for(let i=1;i<=remaining;i++){
+      cells+=`<div class="cal-cell other-month"><div class="cal-cell-num">${i}</div></div>`;
+      cellCount++;
+    }
+    // Final week total if partial week remains
+    if(remaining>0){
+      const wc=weekTotal>0?'pos':weekTotal<0?'neg':'zero';
+      const wLabel=weekTotal===0?'—':fmt(weekTotal,0);
+      cells+=`<div style="grid-column:1/-1"><div class="week-total-row"><span class="week-badge ${wc}">Week: ${wLabel}</span></div></div>`;
     }
 
-    document.getElementById('cal-grid').innerHTML = cells;
+    document.getElementById('cal-grid').innerHTML=cells;
   }
 
-  // ── Charts ──
-  let cumulativeChart = null;
-  let barChart = null;
-
-  function renderCharts() { renderCumulativeChart(); renderBarChart(); }
-
-  function renderCumulativeChart() {
-    const canvas = document.getElementById('cumulative-chart');
-    const empty  = document.getElementById('cumulative-empty');
-    const dateMap = {};
-    data.entries.forEach(e => { dateMap[e.date] = (dateMap[e.date]||0) + e.pnl; });
-    const sorted = Object.keys(dateMap).sort();
-    if (!sorted.length) {
-      canvas.style.display='none'; empty.style.display='flex';
-      if (cumulativeChart) { cumulativeChart.destroy(); cumulativeChart=null; } return;
-    }
-    canvas.style.display='block'; empty.style.display='none';
+  function renderCumulativeChart(){
+    const canvas=document.getElementById('cumulative-chart');
+    const empty=document.getElementById('cumulative-empty');
+    const dateMap={};
+    data.entries.forEach(e=>{dateMap[e.date]=(dateMap[e.date]||0)+e.pnl;});
+    const sorted=Object.keys(dateMap).sort();
+    if(!sorted.length){canvas.style.display='none';empty.style.display='flex';if(cumulativeChart){cumulativeChart.destroy();cumulativeChart=null;}return;}
+    canvas.style.display='block';empty.style.display='none';
     let running=0;
-    const labels = sorted.map(d => d.slice(5));
-    const values = sorted.map(d => { running += dateMap[d]; return parseFloat(running.toFixed(2)); });
-    const lastVal = values[values.length-1];
-    const lineColor = lastVal >= 0 ? '#4ade80' : '#f87171';
-    if (cumulativeChart) cumulativeChart.destroy();
-    const ctx  = canvas.getContext('2d');
-    const grad = ctx.createLinearGradient(0,0,0,160);
-    grad.addColorStop(0, lastVal>=0 ? 'rgba(74,222,128,0.18)' : 'rgba(248,113,113,0.18)');
-    grad.addColorStop(1, 'rgba(0,0,0,0)');
-    cumulativeChart = new Chart(ctx, {
-      type: 'line',
-      data: { labels, datasets: [{ data:values, borderColor:lineColor, borderWidth:2, backgroundColor:grad, pointRadius:values.length>20?0:3, pointBackgroundColor:lineColor, tension:0.3, fill:true }] },
-      options: {
-        responsive:true, maintainAspectRatio:false,
-        plugins: { legend:{display:false}, tooltip:{ callbacks:{ label: c=>(c.parsed.y>=0?'+':'')+'$'+c.parsed.y.toFixed(2) } } },
-        scales: {
-          x: { ticks:{color:'#444',font:{size:9},maxTicksLimit:6}, grid:{color:'#161616'} },
-          y: { ticks:{color:'#444',font:{size:9},callback:v=>'$'+v}, grid:{color:'#161616'} }
-        }
-      }
-    });
+    const labels=sorted.map(d=>d.slice(5));
+    const values=sorted.map(d=>{running+=dateMap[d];return parseFloat(running.toFixed(2));});
+    const lastVal=values[values.length-1];
+    const lc=lastVal>=0?'#4ade80':'#f87171';
+    if(cumulativeChart)cumulativeChart.destroy();
+    const ctx=canvas.getContext('2d');
+    const grad=ctx.createLinearGradient(0,0,0,160);
+    grad.addColorStop(0,lastVal>=0?'rgba(74,222,128,0.18)':'rgba(248,113,113,0.18)');
+    grad.addColorStop(1,'rgba(0,0,0,0)');
+    cumulativeChart=new Chart(ctx,{type:'line',data:{labels,datasets:[{data:values,borderColor:lc,borderWidth:2,backgroundColor:grad,pointRadius:values.length>20?0:3,pointBackgroundColor:lc,tension:0.3,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>(c.parsed.y>=0?'+':'')+'$'+c.parsed.y.toFixed(2)}}},scales:{x:{ticks:{color:'#444',font:{size:9},maxTicksLimit:6},grid:{color:'#161616'}},y:{ticks:{color:'#444',font:{size:9},callback:v=>'$'+v},grid:{color:'#161616'}}}}});
   }
 
-  function renderBarChart() {
-    const canvas = document.getElementById('bar-chart');
-    const empty  = document.getElementById('bar-empty');
-    document.getElementById('bar-month-label').textContent = MONTH_NAMES[calMonth]+' '+calYear;
-    const prefix = `${calYear}-${String(calMonth+1).padStart(2,'0')}`;
-    const dateMap = {};
-    data.entries.filter(e => e.date.startsWith(prefix)).forEach(e => { dateMap[e.date]=(dateMap[e.date]||0)+e.pnl; });
-    const sorted = Object.keys(dateMap).sort();
-    if (!sorted.length) {
-      canvas.style.display='none'; empty.style.display='flex';
-      if (barChart) { barChart.destroy(); barChart=null; } return;
-    }
-    canvas.style.display='block'; empty.style.display='none';
-    const labels  = sorted.map(d => parseInt(d.split('-')[2]));
-    const values  = sorted.map(d => parseFloat(dateMap[d].toFixed(2)));
-    const colors  = values.map(v => v>=0 ? 'rgba(74,222,128,0.7)' : 'rgba(248,113,113,0.7)');
-    const borders = values.map(v => v>=0 ? '#4ade80' : '#f87171');
-    if (barChart) barChart.destroy();
-    barChart = new Chart(document.getElementById('bar-chart').getContext('2d'), {
-      type: 'bar',
-      data: { labels, datasets: [{ data:values, backgroundColor:colors, borderColor:borders, borderWidth:1, borderRadius:3 }] },
-      options: {
-        responsive:true, maintainAspectRatio:false,
-        plugins: { legend:{display:false}, tooltip:{ callbacks:{ label: c=>(c.parsed.y>=0?'+':'')+'$'+c.parsed.y.toFixed(2) } } },
-        scales: {
-          x: { ticks:{color:'#444',font:{size:9}}, grid:{color:'#161616'} },
-          y: { ticks:{color:'#444',font:{size:9},callback:v=>'$'+v}, grid:{color:'#161616'} }
-        }
-      }
-    });
+  function renderBarChart(){
+    const canvas=document.getElementById('bar-chart');
+    const empty=document.getElementById('bar-empty');
+    document.getElementById('bar-month-label').textContent=MONTH_NAMES[calMonth]+' '+calYear;
+    const prefix=`${calYear}-${String(calMonth+1).padStart(2,'0')}`;
+    const dateMap={};
+    data.entries.filter(e=>e.date.startsWith(prefix)).forEach(e=>{dateMap[e.date]=(dateMap[e.date]||0)+e.pnl;});
+    const sorted=Object.keys(dateMap).sort();
+    if(!sorted.length){canvas.style.display='none';empty.style.display='flex';if(barChart){barChart.destroy();barChart=null;}return;}
+    canvas.style.display='block';empty.style.display='none';
+    const labels=sorted.map(d=>parseInt(d.split('-')[2]));
+    const values=sorted.map(d=>parseFloat(dateMap[d].toFixed(2)));
+    const colors=values.map(v=>v>=0?'rgba(74,222,128,0.7)':'rgba(248,113,113,0.7)');
+    const borders=values.map(v=>v>=0?'#4ade80':'#f87171');
+    if(barChart)barChart.destroy();
+    barChart=new Chart(document.getElementById('bar-chart').getContext('2d'),{type:'bar',data:{labels,datasets:[{data:values,backgroundColor:colors,borderColor:borders,borderWidth:1,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>(c.parsed.y>=0?'+':'')+'$'+c.parsed.y.toFixed(2)}}},scales:{x:{ticks:{color:'#444',font:{size:9}},grid:{color:'#161616'}},y:{ticks:{color:'#444',font:{size:9},callback:v=>'$'+v},grid:{color:'#161616'}}}}});
   }
 
-  function render() {
+  function render(){
     renderAccounts();
     renderStats();
-    renderCharts();
+    renderCumulativeChart();
+    renderBarChart();
     renderEntryPanel();
     renderCalendar();
   }
-
-  render();
 </script>
 </body>
 </html>
